@@ -7,10 +7,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//express.get takes in 2 params (request, response)
+//When client is connected, they receieve "hello" on their end.
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//Incorporates JS and HTML.
+//Responds with bolded text
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+//Allows server to retreieve or "listen" to requests
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
