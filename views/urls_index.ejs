@@ -22,8 +22,11 @@
       <tbody>
         <% for(let url in urls) { %>
           <tr>
+            <form method="POST" action="/urls/<%= url %>/delete">
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td><button type="submit">Delete</button></td>
+          </form>
           </tr>
         <% } %>
       </tbody>
