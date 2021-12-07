@@ -68,7 +68,13 @@ app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
-})
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+const shortURL = req.params.shortURL;
+delete urlDatabase[shortURL];
+res.redirect("/urls")
+});
 
 //Allows server to retreieve or "listen" for requests
 app.listen(PORT, () => {
