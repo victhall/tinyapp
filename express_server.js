@@ -24,11 +24,11 @@ const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
 //cookie session
-// const cookieSession = require('cookie-session');
-// app.use(cookieSession({
-//   name: 'session',
-//   secret: ''
-// }));
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['boogaloo']
+}));
 
 //database with id
 const urlDatabase = {
@@ -61,19 +61,19 @@ const usersDatabase = {
 
 //login form
 app.get("/login", (req, res) => {
-  const userId = req.cookies['userId'];
+  const userId = req.session['userId'];
   res.render('urls_login', { user: usersDatabase[userId] })
 });
 
 //register form
 app.get("/register", (req, res) => {
-  const userId = req.cookies['userId'];
+  const userId = req.session['userId'];
   res.render('urls_registration', { user: usersDatabase[userId] });
 })
 
 //main page
 app.get("/urls", (req, res) => {
-  const userId = req.cookies['userId'];
+  const userId = req.session['userId'];
   const templateVars = { urls: urlDatabase, user: usersDatabase[userId] };
   res.render("urls_index", templateVars);
 });
@@ -86,8 +86,8 @@ app.get("/u/:shortURL", (req, res) => {
 
 //new URLS
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies['userId'];
-  if (req.cookies['userId']) {
+  const userId = req.session['userId'];
+  if (req.session['userId']) {
     const templateVars = { user: usersDatabase[userId] };
     res.render("urls_new", templateVars);
   } else {
@@ -99,7 +99,7 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   longURL = urlDatabase[shortURL].longURL
-  const userId = req.cookies['userId'];
+  const userId = req.session['userId'];
   const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
   res.render("urls_show", templateVars);
 
@@ -138,7 +138,7 @@ app.post("/register", (req, res) => {
       }
       usersDatabase[userId] = newUser;
 
-      res.cookie('userId', userId)
+      req.session['userId'] = userId
       res.redirect('/urls')
     })
   })
@@ -176,7 +176,7 @@ app.post('/login', (req, res) => {
     const user = usersDatabase[userId];
 
     if (user.email === email && bcrypt.compareSync(password, user.password)) {
-      res.cookie('userId', user.id);
+      req.session['userId'] = user.id
       res.redirect('/urls');
       return
     }
@@ -187,7 +187,7 @@ app.post('/login', (req, res) => {
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('userId')
+  req.session('userId') = null
   res.redirect('/urls');
 });
 
