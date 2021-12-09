@@ -33,12 +33,12 @@ const saltRounds = 10;
 //database with id
 const urlDatabase = {
   b6UTxQ: {
-    longURL: "https://www.lighthouselabs.ca/",
-    userID: "aJ48lW"
+      longURL: "https://www.lighthouselabs.ca/",
+      userID: "aJ48lW"
   },
   i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW"
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
   }
 };
 
@@ -87,8 +87,12 @@ app.get("/u/:shortURL", (req, res) => {
 //new URLS
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['userId'];
-  const templateVars = { user: usersDatabase[userId] }
+  if(req.cookies['userId']) {
+  const templateVars = { user: usersDatabase[userId] };
   res.render("urls_new", templateVars);
+} else {
+  res.redirect("/login")
+}
 });
 
 //edit
