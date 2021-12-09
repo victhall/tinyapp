@@ -33,12 +33,12 @@ const saltRounds = 10;
 //database with id
 const urlDatabase = {
   b6UTxQ: {
-      longURL: "https://www.lighthouselabs.ca/",
-      userID: "aJ48lW"
+    longURL: "http://www.lighthouselabs.ca",
+    userId: "aJ48lW"
   },
   i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
+    longURL: "https://www.google.ca",
+    userId: "aJ48lW"
   }
 };
 
@@ -80,29 +80,30 @@ app.get("/urls", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
 //new URLS
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['userId'];
-  if(req.cookies['userId']) {
-  const templateVars = { user: usersDatabase[userId] };
-  res.render("urls_new", templateVars);
-} else {
-  res.redirect("/login")
-}
+  if (req.cookies['userId']) {
+    const templateVars = { user: usersDatabase[userId] };
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login")
+  }
 });
 
 //edit
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  longURL = urlDatabase[shortURL]
+  longURL = urlDatabase[shortURL].longURL
   const userId = req.cookies['userId'];
   const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
   res.render("urls_show", templateVars);
-})
+
+});
 
 
 //POST
@@ -128,7 +129,7 @@ app.post("/register", (req, res) => {
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, (err, hash) => {
 
-      const userId = generateRandomString;
+      const userId = generateRandomString();
 
       const newUser = {
         id: userId,
@@ -145,22 +146,25 @@ app.post("/register", (req, res) => {
 
 app.post("/urls/:shortURL/", (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longUrl;
+  urlDatabase[shortURL].longURL = req.body.longUrl;
   res.redirect("/urls")
 });
 
 //delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
+  delete urlDatabase[shortURL].longURL;
   res.redirect("/urls")
 });
 
 //generate short url and add to database
 app.post("/urls", (req, res) => {
-  const randomStr = generateRandomString;
-  urlDatabase[randomStr] = req.body.longURL;
-  res.redirect(`/urls/${randomStr}`)
+  const shortURL = generateRandomString();
+  const newUrl = { longURL: req.body.longURL }
+  urlDatabase[shortURL] = newUrl
+  console.log(req.body.longURL)
+  res.redirect(`/urls/${shortURL}`)
+
 });
 
 //authentication 
@@ -171,7 +175,7 @@ app.post('/login', (req, res) => {
   for (let userId in usersDatabase) {
     const user = usersDatabase[userId];
 
-    if (user.email === email && user.password === password) {
+    if (user.email === email && bcrypt.compareSync(password, user.password)) {
       res.cookie('userId', user.id);
       res.redirect('/urls');
       return
@@ -179,6 +183,7 @@ app.post('/login', (req, res) => {
   }
   res.status(400).send('email or password is incorrect. Please try again.')
 });
+
 
 //logout
 app.post("/logout", (req, res) => {

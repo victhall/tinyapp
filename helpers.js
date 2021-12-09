@@ -27,4 +27,8 @@ const generateRandomString = function () {
   return newStr;
 };
 
-module.exports = { generateRandomString };
+const urlsForUser = function(id) {
+let filtered = {};
+};
+
+module.exports = { generateRandomString, urlsForUser };
