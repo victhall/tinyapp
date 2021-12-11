@@ -12,12 +12,8 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//cookie parser
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
 //helper functions
-const { generateRandomString } = require("./helpers")
+const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers")
 
 //password hasher
 const bcrypt = require('bcryptjs');
@@ -25,6 +21,7 @@ const saltRounds = 10;
 
 //cookie session
 const cookieSession = require('cookie-session');
+const { redirect } = require("express/lib/response");
 app.use(cookieSession({
   name: 'session',
   keys: ['boogaloo']
@@ -41,6 +38,10 @@ const urlDatabase = {
     userId: "aJ48lW"
   }
 };
+
+//check if user currently logged in
+//n id coming in url
+//check if user in url is sa,e as url database
 
 //user database
 const usersDatabase = {
@@ -73,9 +74,13 @@ app.get("/register", (req, res) => {
 
 //main page
 app.get("/urls", (req, res) => {
-  const userId = req.session['userId'];
-  const templateVars = { urls: urlDatabase, user: usersDatabase[userId] };
+  const userId = req.session.userId;
+  if (!userId) {
+    res.redirect("/login");
+  } else {
+const templateVars = { urls: urlsForUser(userId), user: usersDatabase[userId] };
   res.render("urls_index", templateVars);
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -86,7 +91,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //new URLS
 app.get("/urls/new", (req, res) => {
-  const userId = req.session['userId'];
+  const userId = req.session.userId;
   if (req.session['userId']) {
     const templateVars = { user: usersDatabase[userId] };
     res.render("urls_new", templateVars);
@@ -153,7 +158,11 @@ app.post("/urls/:shortURL/", (req, res) => {
 //delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL].longURL;
+  for (const index of urlDatabase) {
+    if(urlDatabase[index].userId === req.session.userId) {
+        delete urlDatabase[shortURL].longURL;
+    }
+  }
   res.redirect("/urls")
 });
 
@@ -163,7 +172,8 @@ app.post("/urls", (req, res) => {
   const newUrl = { longURL: req.body.longURL }
   urlDatabase[shortURL] = newUrl
   console.log(req.body.longURL)
-  res.redirect(`/urls/${shortURL}`)
+  // res.redirect(`/urls/${shortURL}`)
+res.redirect("/login")
 
 });
 
@@ -187,8 +197,8 @@ app.post('/login', (req, res) => {
 
 //logout
 app.post("/logout", (req, res) => {
-  req.session('userId') = null
-  res.redirect('/urls');
+  req.session.userId = null
+  res.redirect('/login');
 });
 
 //Allows server to retreieve or "listen" for requests
