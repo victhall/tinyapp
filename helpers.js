@@ -3,18 +3,24 @@ const generateRandomString = function () {
   return newStr;
 };
 
-const urlsForUser = function(id, urlDatabase) {
-let filtered = {};
-for (const shortURL in urlDatabase) {
-  if (database[shortURL].userId === id) {
-     filtered[shortURL] = urlDatabase[shortURL];
+const urlsForUser = function (id, urlDatabase) {
+  const filtered = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userId === id) {
+      filtered[shortURL] = urlDatabase[shortURL];
+    }
   }
-}
+  console.log(filtered)
+  return filtered
 };
 
-const getUserByEmail = function(email, database) {
-  // lookup magic...
-  return user;
+const getUserByEmail = function (email, users) {
+  for (const key in users) {
+    if (users[key].email === email) {
+      return users[key];
+    }
+  }
+  return undefined
 };
 
 module.exports = { generateRandomString, urlsForUser, getUserByEmail };

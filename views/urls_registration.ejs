@@ -1,33 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp Registration</title>
 </head>
-
 <body>
   <%- include('partials/_header') %>
-
     <main style="margin: 1em;">
-
-
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
         <h1 class="card-title">Register an Account</h1>
       </div>
-
       <div class="card-footer text-muted">
         <form action="/register" method="POST">
       <div>
         <input type="email" name="email" placeholder="Enter your email address">
-
       </div>
       <div>
         <input type="password" name="password" placeholder="Enter a password">
@@ -48,5 +40,4 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"></script>
 </body>
-
 </html>
