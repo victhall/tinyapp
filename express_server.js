@@ -114,18 +114,20 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session['userId'];
+  const longURL = urlDatabase[shortURL].longURL;
+  const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
   if (!urlDatabase[shortURL]) {
     return res.status(400).send('The link you are looking for does not exist.');
   }
-  if (userId !== urlDatabase[shortURL].userId) {
+  else if (userId !== urlDatabase[shortURL].userId) {
     return res.status(400).send('You do not have access to this Tinyapp Url');
   }
-  const longURL = urlDatabase[shortURL].longURL;
-  const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
-  if (!userId) {
+  else if (!userId) {
     return res.status(400).send('Please register for an account or log in to access Tinyapp');
+  } else {
+    res.render('urls_show', templateVars);
+
   }
-  res.render('urls_show', templateVars);
 });
 
 
@@ -162,16 +164,24 @@ app.post('/register', (req, res) => {
   })
 });
 
-app.post('/urls/:shortURL/', (req, res) => {
+app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL].longURL = req.body.longUrl;
-  res.redirect('/urls');
+  const userID = req.session.userId;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    user: userID
+  }
+
+  if (userID && userID === urlDatabase[shortURL].user) {
+    urlDatabase[shortURL].longURL = req.body.longUrl;
+    res.redirect(`/urls/${shortURL}`);
+  }
+  res.status(400).send('Please register/log in to use TinyApp.');
 });
 
 //delete url
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log(shortURL);
   if (urlDatabase[shortURL]) {
     delete urlDatabase[shortURL];
   }
@@ -183,8 +193,7 @@ app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   const newUrl = { longURL: req.body.longURL, userId: req.session.userId }
   urlDatabase[shortURL] = newUrl;
-  console.log(req.body.longURL);
-  res.redirect('/urls');
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //authentication 
@@ -206,7 +215,8 @@ app.post('/login', (req, res) => {
 
 //logout
 app.post('/logout', (req, res) => {
-  req.session.userId = null;
+  res.clearCookie('session');
+  res.clearCookie('session.sig');
   res.redirect('/login');
 });
 
@@ -214,4 +224,3 @@ app.post('/logout', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}!`);
 });
-
