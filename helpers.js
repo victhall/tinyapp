@@ -11,16 +11,16 @@ const urlsForUser = function (id, urlDatabase) {
     }
   }
   console.log(filtered)
-  return filtered
+  return filtered;
 };
 
 const getUserByEmail = function (email, users) {
   for (const key in users) {
     if (users[key].email === email) {
-      return true;
+      return users[key];
     }
   }
-  return false
+  return false;
 };
 
 module.exports = { generateRandomString, urlsForUser, getUserByEmail };

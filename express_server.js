@@ -67,7 +67,10 @@ app.get('/', (req, res) => {
 //login form
 app.get('/login', (req, res) => {
   const userId = req.session['userId'];
-  res.render('urls_login', { user: usersDatabase[userId] })
+  if (!usersDatabase[userId]) {
+    return res.render('urls_login', { user: usersDatabase[userId] });
+  }
+  res.redirect('/urls');
 });
 
 //register form
@@ -114,8 +117,6 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session['userId'];
-  const longURL = urlDatabase[shortURL];
-  const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
 
   if (!urlDatabase[shortURL]) {
     return res.status(400).send('The link you are looking for does not exist.');
@@ -126,7 +127,8 @@ app.get('/urls/:shortURL', (req, res) => {
   else if (!userId) {
     return res.status(400).send('Please register for an account or log in to access Tinyapp');
   } else {
-    res.render('urls_show', templateVars);
+    const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: usersDatabase[userId] }
+    return res.render('urls_show', templateVars);
 
   }
 });
@@ -168,7 +170,7 @@ app.post('/register', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userId;
-  if(userID) {
+  if (userID) {
     urlDatabase[shortURL].longURL = req.body.longUrl;
     res.redirect(`/urls`);
   }
@@ -179,7 +181,7 @@ app.post('/urls/:shortURL', (req, res) => {
   // }
 
   // if (userID && userID === urlDatabase[shortURL].user) {
-  
+
   // }
   // res.status(400).send('Please register/log in to use TinyApp.');
   return res.status(400).send('Please register/log in to use TinyApp.');
@@ -207,17 +209,14 @@ app.post('/urls', (req, res) => {
 app.post('/login', (req, res) => {
   const password = req.body.password;
   const user = getUserByEmail(req.body.email, usersDatabase);
-
   if (!user) {
-    res.status(400).send('This user does not exist.');
-    return;
+    return res.status(400).send('This user does not exist.');
   }
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session['userId'] = user.id;
     res.redirect('/urls');
-    return;
   }
-  res.status(400).send('email or password is incorrect. Please try again.')
+  res.status(400).send('email or password is incorrect. Please try again.');
 });
 
 //logout
