@@ -17,10 +17,10 @@ const urlsForUser = function (id, urlDatabase) {
 const getUserByEmail = function (email, users) {
   for (const key in users) {
     if (users[key].email === email) {
-      return users[key];
+      return true;
     }
   }
-  return undefined
+  return false
 };
 
 module.exports = { generateRandomString, urlsForUser, getUserByEmail };

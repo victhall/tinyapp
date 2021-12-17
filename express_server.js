@@ -114,8 +114,9 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session['userId'];
-  const longURL = urlDatabase[shortURL].longURL;
+  const longURL = urlDatabase[shortURL];
   const templateVars = { shortURL: shortURL, longURL: longURL, user: usersDatabase[userId] }
+
   if (!urlDatabase[shortURL]) {
     return res.status(400).send('The link you are looking for does not exist.');
   }
@@ -167,16 +168,22 @@ app.post('/register', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userId;
-  urlDatabase[shortURL] = {
-    longURL: req.body.longURL,
-    user: userID
+  if(userID) {
+    urlDatabase[shortURL].longURL = req.body.longUrl;
+    res.redirect(`/urls`);
   }
 
-  if (userID && userID === urlDatabase[shortURL].user) {
-    urlDatabase[shortURL].longURL = req.body.longUrl;
-    res.redirect(`/urls/${shortURL}`);
-  }
-  res.status(400).send('Please register/log in to use TinyApp.');
+  // urlDatabase[shortURL] = {
+  //   longURL: req.body.longURL,
+  //   user: userID
+  // }
+
+  // if (userID && userID === urlDatabase[shortURL].user) {
+  
+  // }
+  // res.status(400).send('Please register/log in to use TinyApp.');
+  return res.status(400).send('Please register/log in to use TinyApp.');
+
 });
 
 //delete url
