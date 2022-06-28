@@ -1,22 +1,12 @@
-//express
 const express = require('express');
 const app = express();
-
-//port
 const PORT = 8080;
-
-//ejs
-app.set('view engine', 'ejs');
-
-//body parser
-const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
-
-//helper functions
+const bcrypt = require('bcryptjs');
 const { generateRandomString, urlsForUser, getUserByEmail } = require('./helpers')
 
-//password hasher
-const bcrypt = require('bcryptjs');
+app.set('view engine', 'ejs');
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //cookie session
 const cookieSession = require('cookie-session');
@@ -26,7 +16,7 @@ app.use(cookieSession({
   keys: ['boogaloo']
 }));
 
-//database with id
+//url database
 const urlDatabase = {
   b6UTxQ: {
     longURL: 'http://www.lighthouselabs.ca',
@@ -51,9 +41,6 @@ const usersDatabase = {
     password: 'dishwasher-funk'
   }
 };
-
-//GET
-
 
 //main page
 app.get('/', (req, res) => {
@@ -134,9 +121,6 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 
-//POST
-
-
 //create new id and store registration infos
 app.post('/register', (req, res) => {
   const email = req.body.email;
@@ -174,18 +158,7 @@ app.post('/urls/:shortURL', (req, res) => {
     urlDatabase[shortURL].longURL = req.body.longUrl;
     res.redirect(`/urls`);
   }
-
-  // urlDatabase[shortURL] = {
-  //   longURL: req.body.longURL,
-  //   user: userID
-  // }
-
-  // if (userID && userID === urlDatabase[shortURL].user) {
-
-  // }
-  // res.status(400).send('Please register/log in to use TinyApp.');
   return res.status(400).send('Please register/log in to use TinyApp.');
-
 });
 
 //delete url

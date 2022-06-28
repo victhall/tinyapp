@@ -10,7 +10,6 @@ const urlsForUser = function (id, urlDatabase) {
       filtered[shortURL] = urlDatabase[shortURL];
     }
   }
-  console.log(filtered)
   return filtered;
 };
 
